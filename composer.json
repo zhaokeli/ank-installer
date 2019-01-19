@@ -1,5 +1,5 @@
 {
-    "name": "mokuyu/composer-installers-extender",
+    "name": "mokuyu/ank-installers-extender",
     "description": "Extend the composer/installers plugin to accept any arbitrary package type.",
     "homepage": "http://www.oomphinc.com/",
     "type": "composer-plugin",
