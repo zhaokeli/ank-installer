@@ -21,20 +21,20 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             'post-update-cmd' => 'update',
         );
     }
-    public static function install(PackageEvent $event)
+    public function install(PackageEvent $event)
     {
         // if ($event != null) {
         //     self::runScript($event, 'install');
         // }
     }
-    public static function update(PackageEvent $event)
+    public function update(PackageEvent $event)
     {
-        self::log('plugin update');
+        self::log('---------------------------------------------------plugin update');
         // if ($event != null) {
         //     self::runScript($event, 'update');
         // }
     }
-    public static function uninstall(PackageEvent $event)
+    public function uninstall(PackageEvent $event)
     {
         // if ($event != null) {
         //     self::runScript($event, 'uninstall');
