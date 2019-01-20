@@ -32,7 +32,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function packageInstall(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'pageageInstall');
+            $this->runScript($event, 'packageInstall');
         }
     }
     public function cmdUpdate(Event $event)
@@ -50,7 +50,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function packageUninstall(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'pageageUninstall');
+            $this->runScript($event, 'packageUninstall');
         }
     }
     private function runScript($event, $type = '')
