@@ -4,6 +4,7 @@ namespace mokuyu\ComposerInstallersExtender;
 
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
+use Composer\Installer\PackageEvent;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 
