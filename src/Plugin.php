@@ -11,7 +11,10 @@ use Composer\Script\Event;
 
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
-
+    private function log($str)
+    {
+        echo '> ' . $str . "\n";
+    }
     public function activate(Composer $composer, IOInterface $io)
     {
         $installer = new Installer($io, $composer);
@@ -31,14 +34,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
     public function cmdUpdate(Event $event)
     {
-        self::log('---------------------------------------------------plugin update');
+        $this->log('---------------------------------------------------plugin update');
         // if ($event != null) {
         //     self::runScript($event, 'update');
         // }
     }
     public function update(PackageEvent $event)
     {
-        self::log('---------------------------------------------------plugin update');
+        $this->log('---------------------------------------------------plugin update');
         // if ($event != null) {
         //     self::runScript($event, 'update');
         // }
