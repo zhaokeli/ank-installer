@@ -57,10 +57,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         try {
             $vendorDir = '';
-            if (!class_exists('\\ank\\App')) {
-                $this->log('\\ank\\App is not found!');
-                return;
-            }
             defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
             $autopath  = $vendorDir . '/autoload.php';
@@ -68,7 +64,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 return;
             }
             $loader = require $autopath;
-
+            if (!class_exists('\\ank\\App')) {
+                $this->log('\\ank\\App is not found!');
+                return;
+            }
             defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
             \ank\App::start('script');
             //这里判断下数据库连接会不会异常
