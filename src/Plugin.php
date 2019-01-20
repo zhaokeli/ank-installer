@@ -128,10 +128,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                         $siz += $aaa['size'];
                     }
                 }
-                $this->log("clearCache ok! total:  " . ($siz / 1000) . " k");
+                // $this->log("clearCache ok! total:  " . ($siz / 1000) . " k");
             }
         } else {
-            $this->log('clearCache ' . $cache_type . ' ok!');
+            // $this->log('clearCache ' . $cache_type . ' ok!');
         }
     }
 }
