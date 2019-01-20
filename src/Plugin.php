@@ -32,25 +32,25 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function packageInstall(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'install');
+            $this->runScript($event, 'pageageinstall');
         }
     }
     public function cmdUpdate(Event $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'update');
+            $this->runScript($event, 'cmdupdate');
         }
     }
     public function packageUpdate(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'update');
+            $this->runScript($event, 'packageupdate');
         }
     }
     public function packageUninstall(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'uninstall');
+            $this->runScript($event, 'pageageuninstall');
         }
     }
     private function runScript($event, $type = '')
@@ -81,6 +81,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             if (!$type) {
                 return;
             }
+            if (!in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
+                return;
+            }
+            $type             = strtolower(str_replace('package', '', $type));
             $installedPackage = '';
             if ($type == 'update') {
                 $installedPackage = $event->getOperation()->getTargetPackage();
