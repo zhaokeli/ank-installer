@@ -23,33 +23,112 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            'post-update-cmd' => 'cmdUpdate',
+            'post-update-cmd'       => 'cmdUpdate',
+            'post-package-install'  => "packageInstall",
+            'post-package-update'   => "packageUpdate",
+            'pre-package-uninstall' => "packageUninstall",
         );
     }
-    public function install(PackageEvent $event)
+    public function packageInstall(PackageEvent $event)
     {
-        // if ($event != null) {
-        //     self::runScript($event, 'install');
-        // }
+        if ($event != null) {
+            $this->runScript($event, 'install');
+        }
     }
     public function cmdUpdate(Event $event)
     {
-        $this->log('---------------------------------------------------plugin update');
-        // if ($event != null) {
-        //     self::runScript($event, 'update');
-        // }
+        if ($event != null) {
+            $this->runScript($event, 'update');
+        }
     }
-    public function update(PackageEvent $event)
+    public function packageUpdate(PackageEvent $event)
     {
-        $this->log('---------------------------------------------------plugin update');
-        // if ($event != null) {
-        //     self::runScript($event, 'update');
-        // }
+        if ($event != null) {
+            $this->runScript($event, 'update');
+        }
     }
-    public function uninstall(PackageEvent $event)
+    public function packageUninstall(PackageEvent $event)
     {
-        // if ($event != null) {
-        //     self::runScript($event, 'uninstall');
-        // }
+        if ($event != null) {
+            $this->runScript($event, 'uninstall');
+        }
+    }
+    private function runScript($event, $type = '')
+    {
+        try {
+            $vendorDir = '';
+            if (!class_exists('\\ank\\App')) {
+                $this->log('\\ank\\App is not found!');
+                return;
+            }
+            defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
+            $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
+            $autopath  = $vendorDir . '/autoload.php';
+            if (!file_exists($autopath)) {
+                return;
+            }
+            $loader = require $autopath;
+
+            defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
+            \ank\App::start('script');
+            //这里判断下数据库连接会不会异常
+            try {
+                $db = \ank\Db::getInstance();
+            } catch (\ank\Exception $e) {
+                $this->log('database connect error! jump scripts');
+                return;
+            }
+            $this->clearAll();
+            if (!$type) {
+                return;
+            }
+            $installedPackage = '';
+            if ($type == 'update') {
+                $installedPackage = $event->getOperation()->getTargetPackage();
+            } else {
+                $installedPackage = $event->getOperation()->getPackage();
+            }
+            $this->log('current packageName: ' . $installedPackage);
+            if (preg_match('/(.+?)\-\d+/', $installedPackage, $mat)) {
+                $packagePath = $vendorDir . '/' . $mat[1] . '/initscript.php';
+                if (file_exists($packagePath)) {
+                    $action = $type;
+                    include $packagePath;
+                }
+            } else {
+                $this->log('not initscript.php! ' . $installedPackage);
+            }
+        } catch (ClassNotFoundException $e) {
+
+        }
+    }
+    private function clearAll()
+    {
+        $cache_type = \ank\App::config('cache.type');
+        \ank\Cache::action(null);
+        if ($cache_type == 'file') {
+            //因为文件缓存不会清理目录所以下面手动清理下目录
+            $arr = [];
+            //下面只清理啦所有的数据缓存和模板缓存
+            $p1    = \ank\App::config('cache.path');
+            $p2    = \ank\App::config('runtime_path');
+            $p3    = \ank\App::config('template.cache_path');
+            $arr[] = \utils\admin\Com::del_all_file($p1 . '/');
+            $arr[] = \utils\admin\Com::del_all_file($p2 . '/');
+            $arr[] = \utils\admin\Com::del_all_file($p3 . '/');
+            //运行时目录缓存
+            if (is_array($arr)) {
+                //统计缓存大小
+                $siz = 0;
+                foreach ($arr as $aa) {
+                    foreach ($aa as $aaa) {
+                        $siz += $aaa['size'];
+                    }
+                }
+                $this->log("clearCache ok! total:  " . ($siz / 1000) . " k");
+            }
+        } else {
+            $this->log('clearCache ' . $cache_type . ' ok!');
+        }
     }
 }
