@@ -32,7 +32,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function packageInstall(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'pageageinstall');
+            $this->runScript($event, 'pageageInstall');
         }
     }
     public function cmdUpdate(Event $event)
@@ -44,13 +44,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function packageUpdate(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'packageupdate');
+            $this->runScript($event, 'packageUpdate');
         }
     }
     public function packageUninstall(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'pageageuninstall');
+            $this->runScript($event, 'pageageUninstall');
         }
     }
     private function runScript($event, $type = '')
