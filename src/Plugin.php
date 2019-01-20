@@ -91,7 +91,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             } else {
                 $installedPackage = $event->getOperation()->getPackage();
             }
-            $this->log('current packageName: ' . $installedPackage);
+            // $this->log('current packageName: ' . $installedPackage);
             if (preg_match('/(.+?)\-\d+/', $installedPackage, $mat)) {
                 $packagePath = $vendorDir . '/' . $mat[1] . '/initscript.php';
                 if (file_exists($packagePath)) {
