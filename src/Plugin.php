@@ -116,9 +116,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $p1    = \ank\App::config('cache.path');
             $p2    = \ank\App::config('runtime_path');
             $p3    = \ank\App::config('template.cache_path');
-            $arr[] = \utils\admin\Com::del_all_file($p1 . '/');
-            $arr[] = \utils\admin\Com::del_all_file($p2 . '/');
-            $arr[] = \utils\admin\Com::del_all_file($p3 . '/');
+            $arr[] = \utils\admin\Com::delAllFile($p1 . '/');
+            $arr[] = \utils\admin\Com::delAllFile($p2 . '/');
+            $arr[] = \utils\admin\Com::delAllFile($p3 . '/');
             //运行时目录缓存
             if (is_array($arr)) {
                 //统计缓存大小
