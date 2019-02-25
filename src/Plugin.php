@@ -37,6 +37,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
     public function cmdUpdate(Event $event)
     {
+        echo 'cmdUpdate' . "\r\n";
         if ($event != null) {
             // $this->runScript($event, 'cmdupdate');
             $composer = $event->getComposer();
