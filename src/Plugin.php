@@ -23,8 +23,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
-            'pre-update-cmd'        => 'cmdUpdate',
-            'post-update-cmd'       => 'cmdUpdate',
+            'init-script'           => 'runInitScript',
+            // 'pre-update-cmd'        => 'cmdUpdate',
+            // 'post-update-cmd'       => 'cmdUpdate',
             'post-package-install'  => "packageInstall",
             'post-package-update'   => "packageUpdate",
             'pre-package-uninstall' => "packageUninstall",
@@ -36,16 +37,32 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->runScript($event, 'packageInstall');
         }
     }
-    public function cmdUpdate(Event $event)
+    public function runInitScript(Event $event)
     {
-        echo 'cmdUpdate' . "\r\n";
+
         if ($event != null) {
-            // $this->runScript($event, 'cmdupdate');
-            $composer = $event->getComposer();
-            // PackageInterface[]
-            $arr = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
+            $this->log('start runInitScript...');
+            $composer  = $event->getComposer();
+            $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
+            $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
+            $dirlist   = [];
             foreach ($arr as $key => $value) {
-                echo $value->getTargetDir() . "\r\n";
+                $dirpath = $vendorDir . '/' . $value->getName() . '/initscript.php';
+                if (file_exists($dirpath)) {
+                    $dirlist[] = $dirpath;
+                }
+
+            }
+            $dirlist = array_unique($dirlist);
+            defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
+            defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
+            $autopath = $vendorDir . '/autoload.php';
+            $loader   = require $autopath;
+            \ank\App::start('script');
+            $action = 'initScript';
+            foreach ($dirlist as $key => $value) {
+                $this->log('run ' . $value);
+                include $value;
             }
         }
     }
