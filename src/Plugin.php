@@ -23,6 +23,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return array(
+            'pre-update-cmd'        => 'cmdUpdate',
             'post-update-cmd'       => 'cmdUpdate',
             'post-package-install'  => "packageInstall",
             'post-package-update'   => "packageUpdate",
