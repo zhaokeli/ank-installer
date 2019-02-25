@@ -16,7 +16,7 @@ class Installer extends ComposerInstaller
         $installer = new InstallerHelper($package, $this->composer, $this->io);
         $path      = $installer->getInstallPath($package, $package->getType());
         // if the path is false, use the default installer path instead
-        return $path !== false ? str_replace($path, '-', '/') : LibraryInstaller::getInstallPath($package);
+        return $path !== false ? str_replace('-', '/', $path) : LibraryInstaller::getInstallPath($package);
     }
 
     public function supports($packageType)
