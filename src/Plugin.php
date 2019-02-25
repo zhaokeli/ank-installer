@@ -38,7 +38,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function cmdUpdate(Event $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'cmdupdate');
+            // $this->runScript($event, 'cmdupdate');
+            $composer = $event->getComposer();
+            // PackageInterface[]
+            $arr = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
+            foreach ($arr as $key => $value) {
+                echo $value->getTargetDir() . "\r\n";
+            }
         }
     }
     public function packageUpdate(PackageEvent $event)
