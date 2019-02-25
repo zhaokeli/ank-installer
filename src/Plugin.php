@@ -26,7 +26,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             'init-script'           => 'runInitScript',
             // 'pre-update-cmd'        => 'cmdUpdate',
             // 'post-update-cmd'       => 'cmdUpdate',
-            'post-package-install'  => "packageInstall",
+            // 'post-package-install'  => "packageInstall",
             'post-package-update'   => "packageUpdate",
             'pre-package-uninstall' => "packageUninstall",
         );
@@ -36,6 +36,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if ($event != null) {
             $this->runScript($event, 'packageInstall');
         }
+    }
+    private function initWeb($vendorDir)
+    {
+        defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
+        defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
+        $autopath = $vendorDir . '/autoload.php';
+        $loader   = require $autopath;
+        \ank\App::start('script');
     }
     public function runInitScript(Event $event)
     {
@@ -51,14 +59,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 if (file_exists($dirpath)) {
                     $dirlist[] = $dirpath;
                 }
-
             }
             $dirlist = array_unique($dirlist);
-            defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
-            defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
-            $autopath = $vendorDir . '/autoload.php';
-            $loader   = require $autopath;
-            \ank\App::start('script');
+            $this->initWeb($vendorDir);
+
             $action = 'initScript';
             foreach ($dirlist as $key => $value) {
                 $this->log('run ' . $value);
@@ -81,32 +85,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private function runScript($event, $type = '')
     {
         try {
-            $vendorDir = '';
-            defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-            $autopath  = $vendorDir . '/autoload.php';
-            if (!file_exists($autopath)) {
-                return;
-            }
-            $loader = require $autopath;
-            if (!class_exists('\\ank\\App')) {
-                $this->log('\\ank\\App is not found!');
-                return;
-            }
-            defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
-            \ank\App::start('script');
-            //这里判断下数据库连接会不会异常
-            try {
-                $db = \ank\Db::getInstance();
-            } catch (\ank\Exception $e) {
-                $this->log('database connect error! jump scripts');
-                return;
-            }
+            $this->initWeb($vendorDir);
+
             $this->clearAll();
-            if (!$type) {
-                return;
-            }
-            if (!in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
+            if (!$type || !in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
                 return;
             }
             $type             = strtolower(str_replace('package', '', $type));
@@ -116,7 +99,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             } else {
                 $installedPackage = $event->getOperation()->getPackage();
             }
-            // $this->log('current packageName: ' . $installedPackage);
             if (preg_match('/(.+?)\-\d+/', $installedPackage, $mat)) {
                 $packagePath = $vendorDir . '/' . $mat[1] . '/initscript.php';
                 if (file_exists($packagePath)) {
