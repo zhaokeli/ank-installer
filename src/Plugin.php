@@ -39,6 +39,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
     private function initWeb($vendorDir)
     {
+        global $loader;
         defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
         defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
         $autopath = $vendorDir . '/autoload.php';
