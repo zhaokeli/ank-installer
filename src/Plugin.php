@@ -50,7 +50,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
 
         if ($event != null) {
-            $this->log('start runInitScript...');
+
             $composer  = $event->getComposer();
             $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
@@ -63,7 +63,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
             $dirlist = array_unique($dirlist);
             $this->initWeb($vendorDir);
-
+            //输出要在初始化后,否则会导致session_start失败
+            $this->log('start runInitScript...');
             $action = 'initScript';
             foreach ($dirlist as $key => $value) {
                 $this->log('run ' . $value);
