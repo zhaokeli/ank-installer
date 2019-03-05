@@ -96,6 +96,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
     private function runScript($event, $type = '')
     {
+        global $action;
         try {
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
             $this->initWeb($vendorDir);
@@ -112,13 +113,20 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 $installedPackage = $event->getOperation()->getPackage();
             }
             if (preg_match('/(.+?)\-\d+/', $installedPackage, $mat)) {
-                $packagePath = $vendorDir . '/' . $mat[1] . '/initscript.php';
+                $packagePath = $vendorDir . '/' . $mat[1] . '/InitScript.php';
                 if (file_exists($packagePath)) {
                     $action = $type;
                     include $packagePath;
+                    $sname = str_replace($vendorDir, '', $packagePath);
+                    $sname = str_replace('/InitScript.php', '', $sname);
+                    $sname = str_replace('/', '\\', $sname);
+                    $sname = str_replace('-', '', $sname);
+                    $sname .= '\\InitScript';
+                    if (class_exists($sname)) {
+                        $obj = new $sname();
+                        $obj->run();
+                    }
                 }
-            } else {
-                $this->log('not initscript.php! ' . $installedPackage);
             }
         } catch (ClassNotFoundException $e) {
 
