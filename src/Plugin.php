@@ -65,20 +65,21 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->initWeb($vendorDir);
             //输出要在初始化后,否则会导致session_start失败
             $this->log('start runInitScript...');
-            global $action;
-            $action = 'initScript';
+            // global $action;
+            // $action = 'initScript';
             foreach ($dirlist as $key => $value) {
-                //$this->log('run ' . $value);
-                include $value;
-                $sname = str_replace($vendorDir, '', $value);
-                $sname = str_replace('/InitScript.php', '', $sname);
-                $sname = str_replace('/', '\\', $sname);
-                $sname = str_replace('-', '', $sname);
-                $sname .= '\\InitScript';
-                if (class_exists($sname)) {
-                    $obj = new $sname();
-                    $obj->run();
-                }
+                $this->runAction($value, 'initScript');
+                // //$this->log('run ' . $value);
+                // include $value;
+                // $sname = str_replace($vendorDir, '', $value);
+                // $sname = str_replace('/InitScript.php', '', $sname);
+                // $sname = str_replace('/', '\\', $sname);
+                // $sname = str_replace('-', '', $sname);
+                // $sname .= '\\InitScript';
+                // if (class_exists($sname)) {
+                //     $obj = new $sname();
+                //     $obj->run();
+                // }
             }
         }
     }
@@ -96,7 +97,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
     private function runScript($event, $type = '')
     {
-        global $action;
+
         try {
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
             $this->initWeb($vendorDir);
@@ -115,21 +116,37 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             if (preg_match('/(.+?)\-\d+/', $installedPackage, $mat)) {
                 $packagePath = $vendorDir . '/' . $mat[1] . '/InitScript.php';
                 if (file_exists($packagePath)) {
-                    $action = $type;
-                    include $packagePath;
-                    $sname = str_replace($vendorDir, '', $packagePath);
-                    $sname = str_replace('/InitScript.php', '', $sname);
-                    $sname = str_replace('/', '\\', $sname);
-                    $sname = str_replace('-', '', $sname);
-                    $sname .= '\\InitScript';
-                    if (class_exists($sname)) {
-                        $obj = new $sname();
-                        $obj->run();
-                    }
+                    $this->runAction($packagePath, $type);
+                    // $action = $type;
+                    // include $packagePath;
+                    // $sname = str_replace($vendorDir, '', $packagePath);
+                    // $sname = str_replace('/InitScript.php', '', $sname);
+                    // $sname = str_replace('/', '\\', $sname);
+                    // $sname = str_replace('-', '', $sname);
+                    // $sname .= '\\InitScript';
+                    // if (class_exists($sname)) {
+                    //     $obj = new $sname();
+                    //     $obj->run();
+                    // }
                 }
             }
         } catch (ClassNotFoundException $e) {
 
+        }
+    }
+    private function runAction($filePath, $act = 'initScript')
+    {
+        global $action;
+        $action = $act;
+        include $filePath;
+        $sname = substr($filePath, strripos($filePath, 'vendor/') + 7);
+        $sname = str_replace('/InitScript.php', '', $sname);
+        $sname = str_replace('/', '\\', $sname);
+        $sname = str_replace('-', '', $sname);
+        $sname .= '\\InitScript';
+        if (class_exists($sname)) {
+            $obj = new $sname();
+            $obj->run();
         }
     }
     private function clearAll()
