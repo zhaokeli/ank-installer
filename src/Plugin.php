@@ -56,7 +56,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
             $dirlist   = [];
             foreach ($arr as $key => $value) {
-                $dirpath = $vendorDir . '/' . $value->getName() . '/initscript.php';
+                $dirpath = $vendorDir . '/' . $value->getName() . '/InitScript.php';
                 if (file_exists($dirpath)) {
                     $dirlist[] = $dirpath;
                 }
@@ -65,10 +65,20 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->initWeb($vendorDir);
             //输出要在初始化后,否则会导致session_start失败
             $this->log('start runInitScript...');
+            global $action;
             $action = 'initScript';
             foreach ($dirlist as $key => $value) {
-                $this->log('run ' . $value);
+                //$this->log('run ' . $value);
                 include $value;
+                $sname = str_replace($vendorDir, '', $value);
+                $sname = str_replace('/InitScript.php', '', $sname);
+                $sname = str_replace('/', '\\', $sname);
+                $sname = str_replace('-', '', $sname);
+                $sname .= '\\InitScript';
+                if (class_exists($sname)) {
+                    $obj = new $sname();
+                    $obj->run();
+                }
             }
         }
     }
