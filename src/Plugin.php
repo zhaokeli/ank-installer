@@ -13,7 +13,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 {
     private function log($str)
     {
-        echo '> ' . $str . "\n";
+        echo "\n" . '> ' . $str;
     }
     public function activate(Composer $composer, IOInterface $io)
     {
