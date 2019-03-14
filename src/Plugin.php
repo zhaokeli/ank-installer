@@ -127,17 +127,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 $packagePath = $vendorDir . '/' . $mat[1] . '/InitScript.php';
                 if (file_exists($packagePath)) {
                     $this->runAction($packagePath, $type);
-                    // $action = $type;
-                    // include $packagePath;
-                    // $sname = str_replace($vendorDir, '', $packagePath);
-                    // $sname = str_replace('/InitScript.php', '', $sname);
-                    // $sname = str_replace('/', '\\', $sname);
-                    // $sname = str_replace('-', '', $sname);
-                    // $sname .= '\\InitScript';
-                    // if (class_exists($sname)) {
-                    //     $obj = new $sname();
-                    //     $obj->run();
-                    // }
                 }
             }
         } catch (ClassNotFoundException $e) {
