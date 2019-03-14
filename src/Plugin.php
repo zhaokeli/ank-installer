@@ -40,11 +40,17 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private function initWeb($vendorDir)
     {
         global $loader;
-        defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
-        defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
-        $autopath = $vendorDir . '/autoload.php';
-        $loader   = require $autopath;
-        \ank\App::start('script');
+        try {
+            defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
+            defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
+            $autopath = $vendorDir . '/autoload.php';
+            $loader   = require $autopath;
+            \ank\App::start('script');
+            return true;
+        } catch (\ank\Exception $e) {
+            $this->log($e->getMessage());
+            return false;
+        }
     }
     public function runInitScript(Event $event)
     {
@@ -62,7 +68,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 }
             }
             $dirlist = array_unique($dirlist);
-            $this->initWeb($vendorDir);
+            if (!$this->initWeb($vendorDir)) {
+                $this->log('runscript error');
+            }
             //输出要在初始化后,否则会导致session_start失败
             $this->log('start runInitScript...');
             // global $action;
@@ -100,7 +108,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
         try {
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-            $this->initWeb($vendorDir);
+            if (!$this->initWeb($vendorDir)) {
+                $this->log('runscript error');
+            }
 
             $this->clearAll();
             if (!$type || !in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
