@@ -40,17 +40,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private function initWeb($vendorDir)
     {
         global $loader;
-        try {
-            defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
-            defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
-            $autopath = $vendorDir . '/autoload.php';
-            $loader   = require $autopath;
-            \ank\App::start('script');
-            return true;
-        } catch (\ank\Exception $e) {
-            $this->log($e->getMessage());
-            return false;
-        }
+        defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', 1);
+        defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
+        $autopath = $vendorDir . '/autoload.php';
+        $loader   = require $autopath;
+        \ank\App::start('script');
     }
     public function runInitScript(Event $event)
     {
@@ -73,21 +67,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
             //输出要在初始化后,否则会导致session_start失败
             $this->log('start runInitScript...');
-            // global $action;
-            // $action = 'initScript';
             foreach ($dirlist as $key => $value) {
                 $this->runAction($value, 'initScript');
-                // //$this->log('run ' . $value);
-                // include $value;
-                // $sname = str_replace($vendorDir, '', $value);
-                // $sname = str_replace('/InitScript.php', '', $sname);
-                // $sname = str_replace('/', '\\', $sname);
-                // $sname = str_replace('-', '', $sname);
-                // $sname .= '\\InitScript';
-                // if (class_exists($sname)) {
-                //     $obj = new $sname();
-                //     $obj->run();
-                // }
             }
         }
     }
@@ -106,46 +87,46 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private function runScript($event, $type = '')
     {
 
-        try {
-            $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-            if (!$this->initWeb($vendorDir)) {
-                $this->log('runscript error');
-            }
+        $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
+        if (!$this->initWeb($vendorDir)) {
+            $this->log('runscript error');
+        }
 
-            $this->clearAll();
-            if (!$type || !in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
-                return;
+        $this->clearAll();
+        if (!$type || !in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
+            return;
+        }
+        $type             = strtolower(str_replace('package', '', $type));
+        $installedPackage = '';
+        if ($type == 'update') {
+            $installedPackage = $event->getOperation()->getTargetPackage();
+        } else {
+            $installedPackage = $event->getOperation()->getPackage();
+        }
+        if (preg_match('/(.+?)\-\d+/', $installedPackage, $mat)) {
+            $packagePath = $vendorDir . '/' . $mat[1] . '/InitScript.php';
+            if (file_exists($packagePath)) {
+                $this->runAction($packagePath, $type);
             }
-            $type             = strtolower(str_replace('package', '', $type));
-            $installedPackage = '';
-            if ($type == 'update') {
-                $installedPackage = $event->getOperation()->getTargetPackage();
-            } else {
-                $installedPackage = $event->getOperation()->getPackage();
-            }
-            if (preg_match('/(.+?)\-\d+/', $installedPackage, $mat)) {
-                $packagePath = $vendorDir . '/' . $mat[1] . '/InitScript.php';
-                if (file_exists($packagePath)) {
-                    $this->runAction($packagePath, $type);
-                }
-            }
-        } catch (ClassNotFoundException $e) {
-
         }
     }
     private function runAction($filePath, $act = 'initScript')
     {
-        global $action;
-        $action = $act;
-        include $filePath;
-        $sname = substr($filePath, strripos($filePath, 'vendor/') + 7);
-        $sname = str_replace('/InitScript.php', '', $sname);
-        $sname = str_replace('/', '\\', $sname);
-        $sname = str_replace('-', '', $sname);
-        $sname .= '\\InitScript';
-        if (class_exists($sname)) {
-            $obj = new $sname();
-            $obj->run();
+        try {
+            global $action;
+            $action = $act;
+            include $filePath;
+            $sname = substr($filePath, strripos($filePath, 'vendor/') + 7);
+            $sname = str_replace('/InitScript.php', '', $sname);
+            $sname = str_replace('/', '\\', $sname);
+            $sname = str_replace('-', '', $sname);
+            $sname .= '\\InitScript';
+            if (class_exists($sname)) {
+                $obj = new $sname();
+                $obj->run();
+            }
+        } catch (\ank\DbException $e) {
+            $this->log($e->getmessage());
         }
     }
     private function clearAll()
