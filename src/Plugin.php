@@ -45,6 +45,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $autopath = $vendorDir . '/autoload.php';
         $loader   = require $autopath;
         \ank\App::start('script');
+        return;
     }
     public function runInitScript(Event $event)
     {
@@ -62,9 +63,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 }
             }
             $dirlist = array_unique($dirlist);
-            if (!$this->initWeb($vendorDir)) {
-                $this->log('runscript error');
-            }
+            $this->initWeb($vendorDir);
             //输出要在初始化后,否则会导致session_start失败
             $this->log('start runInitScript...');
             foreach ($dirlist as $key => $value) {
@@ -88,10 +87,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
 
         $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-        if (!$this->initWeb($vendorDir)) {
-            $this->log('runscript error');
-        }
-
+        $this->initWeb($vendorDir);
         $this->clearAll();
         if (!$type || !in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
             return;
