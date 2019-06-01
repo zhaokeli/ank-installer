@@ -146,6 +146,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 //统计缓存大小
                 $siz = 0;
                 foreach ($arr as $aa) {
+                    if (!is_array($aa)) {
+                        continue;
+                    }
                     foreach ($aa as $aaa) {
                         $siz += $aaa['size'];
                     }
