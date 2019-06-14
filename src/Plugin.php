@@ -45,6 +45,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
             $autopath = $vendorDir . '/autoload.php';
             $loader   = require $autopath;
+            if (!class_exists('\ank\App')) {
+                return;
+            }
             \ank\App::start('script');
         }
         return;
