@@ -132,6 +132,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
     private function clearAll()
     {
+        if (!class_exists('\ank\App')) {
+            return;
+        }
         $cache_type = \ank\App::config('cache.type');
         \ank\Cache::action(null);
         if ($cache_type == 'file') {
