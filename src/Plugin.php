@@ -2,6 +2,7 @@
 
 namespace mokuyu\ComposerInstallersExtender;
 
+use ank\facade\App;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\PackageEvent;
@@ -135,15 +136,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (!class_exists('\ank\App')) {
             return;
         }
-        $cache_type = \ank\App::config('cache.type');
+        $cache_type = App::config('cache.type');
         \ank\Cache::action(null);
         if ($cache_type == 'file') {
             //因为文件缓存不会清理目录所以下面手动清理下目录
             $arr = [];
             //下面只清理啦所有的数据缓存和模板缓存
-            $p1    = \ank\App::config('cache.path');
-            $p2    = \ank\App::config('runtime_path');
-            $p3    = \ank\App::config('template.cache_path');
+            $p1    = App::config('cache.path');
+            $p2    = App::config('runtime_path');
+            $p3    = App::config('template.cache_path');
             $arr[] = \utils\admin\Com::delAllFile($p1 . '/');
             $arr[] = \utils\admin\Com::delAllFile($p2 . '/');
             $arr[] = \utils\admin\Com::delAllFile($p3 . '/');
