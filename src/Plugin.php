@@ -137,7 +137,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
         $cache_type = App::config('cache.type');
-        \ank\Cache::action(null);
+        \ank\facade\Cache::action(null);
         if ($cache_type == 'file') {
             //因为文件缓存不会清理目录所以下面手动清理下目录
             $arr = [];
