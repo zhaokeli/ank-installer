@@ -131,39 +131,47 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->log($e->getmessage());
         }
     }
+    /**
+     * 此功能废弃,为啦把它独立出来
+     * @authname [权限名字]     0
+     * @Author   mokuyu
+     * @DateTime 2019-09-11
+     * @return   [type]
+     */
     private function clearAll()
     {
-        if (!class_exists('\ank\App')) {
-            return;
-        }
-        $cache_type = App::config('cache.type');
-        \ank\facade\Cache::action(null);
-        if ($cache_type == 'file') {
-            //因为文件缓存不会清理目录所以下面手动清理下目录
-            $arr = [];
-            //下面只清理啦所有的数据缓存和模板缓存
-            $p1    = App::config('cache.path');
-            $p2    = App::config('runtime_path');
-            $p3    = App::config('template.cache_path');
-            $arr[] = \utils\admin\Com::delAllFile($p1 . '/');
-            $arr[] = \utils\admin\Com::delAllFile($p2 . '/');
-            $arr[] = \utils\admin\Com::delAllFile($p3 . '/');
-            //运行时目录缓存
-            if (is_array($arr)) {
-                //统计缓存大小
-                $siz = 0;
-                foreach ($arr as $aa) {
-                    if (!is_array($aa)) {
-                        continue;
-                    }
-                    foreach ($aa as $aaa) {
-                        $siz += $aaa['size'];
-                    }
-                }
-                // $this->log("clearCache ok! total:  " . ($siz / 1000) . " k");
-            }
-        } else {
-            // $this->log('clearCache ' . $cache_type . ' ok!');
-        }
+        return;
+        // if (!class_exists('\ank\App')) {
+        //     return;
+        // }
+        // $cache_type = App::config('cache.type');
+        // \ank\facade\Cache::action(null);
+        // if ($cache_type == 'file') {
+        //     //因为文件缓存不会清理目录所以下面手动清理下目录
+        //     $arr = [];
+        //     //下面只清理啦所有的数据缓存和模板缓存
+        //     $p1    = App::config('cache.path');
+        //     $p2    = App::config('runtime_path');
+        //     $p3    = App::config('template.cache_path');
+        //     $arr[] = \utils\admin\Com::delAllFile($p1 . '/');
+        //     $arr[] = \utils\admin\Com::delAllFile($p2 . '/');
+        //     $arr[] = \utils\admin\Com::delAllFile($p3 . '/');
+        //     //运行时目录缓存
+        //     if (is_array($arr)) {
+        //         //统计缓存大小
+        //         $siz = 0;
+        //         foreach ($arr as $aa) {
+        //             if (!is_array($aa)) {
+        //                 continue;
+        //             }
+        //             foreach ($aa as $aaa) {
+        //                 $siz += $aaa['size'];
+        //             }
+        //         }
+        //         // $this->log("clearCache ok! total:  " . ($siz / 1000) . " k");
+        //     }
+        // } else {
+        //     // $this->log('clearCache ' . $cache_type . ' ok!');
+        // }
     }
 }
