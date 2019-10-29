@@ -14,7 +14,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 {
     private function log($str)
     {
-        echo '> ' . $str . "\n";
+        echo '  - ' . $str . "\n";
     }
     public function activate(Composer $composer, IOInterface $io)
     {
