@@ -39,6 +39,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
         $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
         $runpath   = dirname($vendorDir) . '/runtime/runfile/';
+        $this->log('clearing ' . $runpath);
         $this->delAllFile($runpath);
     }
     public function packageInstall(PackageEvent $event)
