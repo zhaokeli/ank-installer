@@ -23,14 +23,23 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
     public static function getSubscribedEvents()
     {
-        return array(
+        return [
             'init-script'           => 'runInitScript',
-            // 'pre-update-cmd'        => 'cmdUpdate',
-            // 'post-update-cmd'       => 'cmdUpdate',
+            //'pre-update-cmd'        => 'cmdPostUpdate',
+            'post-update-cmd'       => 'clearRunfile',
+            'post-install-cmd'      => 'clearRunfile',
             // 'post-package-install'  => "packageInstall",
-            'post-package-update'   => "packageUpdate",
-            'pre-package-uninstall' => "packageUninstall",
-        );
+            'post-package-update'   => 'packageUpdate',
+            'pre-package-uninstall' => 'packageUninstall',
+        ];
+    }
+    public function clearRunfile(Event $event)
+    {
+        $composer  = $event->getComposer();
+        $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
+        $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
+        $runpath   = dirname($vendorDir) . '/runtime/runfile/';
+        $this->delAllFile($runpath);
     }
     public function packageInstall(PackageEvent $event)
     {
@@ -173,5 +182,48 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         // } else {
         //     // $this->log('clearCache ' . $cache_type . ' ok!');
         // }
+    }
+    /**此方法用来删除某个文件夹下的所有文件
+     *@param string $path为文件夹的绝对路径如d:/tem/
+     *@param string $delself 是否把自己也删除,默认不删除
+     *@param string $delfolder 删除所有文件夹默认为true,如果为false,则只删除所有目录中的文件
+     *@返回值为 删除的文件数量(路径和大小)
+     *@清理缓存很实用,哈哈
+     *@author qiaokeli <735579768@qq.com>  www.zhaokeli.com
+     **/
+    public function delAllFile($fpath, $delself = false, $delfolder = true)
+    {
+        defined('YPATH') or define('YPATH', $fpath);
+        $files    = [];
+        $filepath = iconv('gb2312', 'utf-8', $fpath);
+        if (is_dir($fpath)) {
+            if ($dh = opendir($fpath)) {
+                while (($file = readdir($dh)) !== false) {
+                    if ($file != '.' && $file != '..') {
+                        $temarr = $this->delAllFile($fpath . '/' . $file);
+                        $files  = array_merge($files, $temarr);
+                    }
+                }
+                closedir($dh);
+            }
+            if ($delfolder) {
+                //过虑删除自己的情况
+                if ($fpath === YPATH) {
+                    if ($delself) {
+                        $files[] = ['path' => $fpath, 'size' => filesize($fpath)];
+                        @rmdir($fpath);
+                    }
+                } else {
+                    $files[] = ['path' => $fpath, 'size' => filesize($fpath)];
+                    @rmdir($fpath);
+                }
+            }
+        } else {
+            if (is_file($fpath)) {
+                $files[] = ['path' => $fpath, 'size' => filesize($fpath)];
+                @unlink($fpath);
+            }
+        }
+        return $files;
     }
 }
