@@ -147,8 +147,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 return;
             }
             App::start([
-                'siteRoot'   => dirname($vendorDir) . '/web',
-                'vendorPath' => dirname($vendorDir),
+                'siteRoot' => dirname($vendorDir) . '/web',
             ]);
             // App::getInstance()->setSiteRoot(str_replace('\\', '/', ));
         }
