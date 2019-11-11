@@ -140,7 +140,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         global $loader;
         if (!defined('SCRIPT_ENTRY')) {
             define('SCRIPT_ENTRY', 1);
-            defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
+            // defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
             $autopath = $vendorDir . '/autoload.php';
             $loader   = require $autopath;
             if (!class_exists('\ank\App')) {
