@@ -2,7 +2,7 @@
 
 namespace mokuyu\ComposerInstallersExtender;
 
-use ank\facade\App;
+use ank\App;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\PackageEvent;
@@ -135,7 +135,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
     }
 
-    private function initWeb($vendorDir)
+    protected function initWeb($vendorDir)
     {
         global $loader;
         if (!defined('SCRIPT_ENTRY')) {
@@ -146,18 +146,19 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             if (!class_exists('\ank\App')) {
                 return;
             }
-            \ank\App::start('script');
+            App::start();
+            App::getInstance()->setSiteRoot(str_replace('\\', '/', dirname($vendorDir) . '/web'));
         }
 
         return;
     }
 
-    private function log($str)
+    protected function log($str)
     {
         echo '  - ' . $str . "\n";
     }
 
-    private function runAction($filePath, $act = 'initScript')
+    protected function runAction($filePath, $act = 'initScript')
     {
         try {
             global $action;
@@ -177,7 +178,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
     }
 
-    private function runScript($event, $type = '')
+    protected function runScript($event, $type = '')
     {
 
         $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
