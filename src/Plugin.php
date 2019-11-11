@@ -145,6 +145,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (!class_exists('\ank\App') || $isInit > 1) {
             return;
         }
+        //下面这句 InitScript.php使用
+        defined('SCRIPT_ENTRY', true);
         App::start([
             'appEnv'   => 'script',
             'siteRoot' => dirname($vendorDir) . '/web',
