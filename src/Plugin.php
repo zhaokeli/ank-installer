@@ -137,22 +137,19 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     protected function initWeb($vendorDir)
     {
+        static $isInit = 0;
+        $isInit++;
         global $loader;
-        if (!defined('SCRIPT_ENTRY')) {
-            define('SCRIPT_ENTRY', 1);
-            // defined('SITE_ROOT') or define('SITE_ROOT', str_replace('\\', '/', dirname($vendorDir) . '/web'));
-            $autopath = $vendorDir . '/autoload.php';
-            $loader   = require $autopath;
-            if (!class_exists('\ank\App')) {
-                return;
-            }
-            App::start([
-                'siteRoot' => dirname($vendorDir) . '/web',
-            ]);
-            // App::getInstance()->setSiteRoot(str_replace('\\', '/', ));
+        $autopath = $vendorDir . '/autoload.php';
+        $loader   = require $autopath;
+        if (!class_exists('\ank\App') || $isInit > 1) {
+            return;
         }
+        App::start([
+            'appEnv'   => 'script',
+            'siteRoot' => dirname($vendorDir) . '/web',
+        ]);
 
-        return;
     }
 
     protected function log($str)
