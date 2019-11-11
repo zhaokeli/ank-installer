@@ -146,8 +146,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             if (!class_exists('\ank\App')) {
                 return;
             }
-            App::start();
-            App::getInstance()->setSiteRoot(str_replace('\\', '/', dirname($vendorDir) . '/web'));
+            App::start([
+                'siteRoot'   => dirname($vendorDir) . '/web',
+                'vendorPath' => dirname($vendorDir),
+            ]);
+            // App::getInstance()->setSiteRoot(str_replace('\\', '/', ));
         }
 
         return;
