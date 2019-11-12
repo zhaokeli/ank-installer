@@ -116,6 +116,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
             $dirlist   = [];
+            $this->initWeb($vendorDir);
             if (!class_exists('\utils\admin\InitScript')) {
                 return;
             }
@@ -126,10 +127,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 }
             }
             $dirlist = array_unique($dirlist);
-            $this->initWeb($vendorDir);
+            if (!$dirlist) {
+                return;
+            }
             //输出要在初始化后,否则会导致session_start失败
-            $this->log('start runInitScript...');
+            $this->log('Start RunInitScript...');
             foreach ($dirlist as $key => $value) {
+                $this->log('Running Script: ' . $value);
                 $this->runAction($value, 'initScript');
             }
         }
