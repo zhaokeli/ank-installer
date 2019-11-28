@@ -150,7 +150,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             return;
         }
         //下面这句 InitScript.php使用
-        define('SCRIPT_ENTRY', true);
+        defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', true);
         App::start([
             'appEnv'   => 'script',
             'siteRoot' => dirname($vendorDir) . '/web',
