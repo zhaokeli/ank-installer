@@ -170,9 +170,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $action = $act;
             include $filePath;
             $sname = substr($filePath, strripos($filePath, 'vendor/') + 7);
-            $sname = str_replace('/InitScript.php', '', $sname);
-            $sname = str_replace('/', '\\', $sname);
-            $sname = str_replace('-', '', $sname);
+            // $sname = str_replace('/InitScript.php', '', $sname);
+            // $sname = str_replace('/', '\\', $sname);
+            // $sname = str_replace('-', '', $sname);
+            $sname = strtr($sname, [
+                '/InitScript.php' => '',
+                '/'               => '\\',
+                '-'               => '',
+            ]);
             $sname .= '\\InitScript';
             if (class_exists($sname)) {
                 $obj = new $sname();
