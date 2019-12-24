@@ -190,27 +190,30 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     protected function runScript($event, $type = '')
     {
-
-        $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-        $this->initWeb($vendorDir);
-        if (!$type || !in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
-            return;
-        }
-        $type             = strtolower(str_replace('package', '', $type));
-        $installedPackage = '';
-        if ($type == 'update') {
-            $installedPackage = $event->getOperation()->getTargetPackage();
-        } else {
-            $installedPackage = $event->getOperation()->getPackage();
-        }
-        if (!class_exists('\utils\admin\InitScript')) {
-            return;
-        }
-        if (preg_match('/(.+?)\-\d+/', $installedPackage, $mat)) {
-            $packagePath = $vendorDir . '/' . $mat[1] . '/InitScript.php';
-            if (file_exists($packagePath)) {
-                $this->runAction($packagePath, $type);
+        try {
+            $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
+            $this->initWeb($vendorDir);
+            if (!$type || !in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
+                return;
             }
+            $type             = strtolower(str_replace('package', '', $type));
+            $installedPackage = '';
+            if ($type == 'update') {
+                $installedPackage = $event->getOperation()->getTargetPackage();
+            } else {
+                $installedPackage = $event->getOperation()->getPackage();
+            }
+            if (!class_exists('\utils\admin\InitScript')) {
+                return;
+            }
+            if (preg_match('/(.+?)\-\d+/', $installedPackage, $mat)) {
+                $packagePath = $vendorDir . '/' . $mat[1] . '/InitScript.php';
+                if (file_exists($packagePath)) {
+                    $this->runAction($packagePath, $type);
+                }
+            }
+        } catch (\Exception $e) {
+
         }
     }
 }
