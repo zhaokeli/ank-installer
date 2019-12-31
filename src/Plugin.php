@@ -18,15 +18,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $composer->getInstallationManager()->addInstaller($installer);
     }
 
-    public function clearRunfile(Event $event)
-    {
-        $composer  = $event->getComposer();
-        $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
-        $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-        $runpath   = dirname($vendorDir) . '/runtime/runfile/';
-        $this->log('clearing ' . $runpath);
-        $this->delAllFile($runpath);
-    }
+    //linux下面清理时路径有问题,所以这里删除掉
+    // public function clearRunfile(Event $event)
+    // {
+    //     $composer  = $event->getComposer();
+    //     $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
+    //     $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
+    //     $runpath   = dirname($vendorDir) . '/runtime/runfile/';
+    //     $this->log('clearing ' . $runpath);
+    //     $this->delAllFile($runpath);
+    // }
 
     /**此方法用来删除某个文件夹下的所有文件
      *@param string $path为文件夹的绝对路径如d:/tem/
@@ -78,8 +79,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         return [
             'init-script'           => 'runInitScript',
             //'pre-update-cmd'        => 'cmdPostUpdate',
-            'post-update-cmd'       => 'clearRunfile',
-            'post-install-cmd'      => 'clearRunfile',
+            // 'post-update-cmd'       => 'clearRunfile',
+            // 'post-install-cmd'      => 'clearRunfile',
             // 'post-package-install'  => "packageInstall",
             'post-package-update'   => 'packageUpdate',
             'pre-package-uninstall' => 'packageUninstall',
