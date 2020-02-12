@@ -18,69 +18,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $composer->getInstallationManager()->addInstaller($installer);
     }
 
-    //linux下面清理时路径有问题,所以这里删除掉
-    // public function clearRunfile(Event $event)
-    // {
-    //     $composer  = $event->getComposer();
-    //     $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
-    //     $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-    //     $runpath   = dirname($vendorDir) . '/runtime/runfile/';
-    //     $this->log('clearing ' . $runpath);
-    //     $this->delAllFile($runpath);
-    // }
-
-    /**此方法用来删除某个文件夹下的所有文件
-     *@param string $path为文件夹的绝对路径如d:/tem/
-     *@param string $delself 是否把自己也删除,默认不删除
-     *@param string $delfolder 删除所有文件夹默认为true,如果为false,则只删除所有目录中的文件
-     *@返回值为 删除的文件数量(路径和大小)
-     *@清理缓存很实用,哈哈
-     *@author qiaokeli <735579768@qq.com>  www.zhaokeli.com
-     **/
-    public function delAllFile($fpath, $delself = false, $delfolder = true)
-    {
-        defined('YPATH') or define('YPATH', $fpath);
-        $files    = [];
-        $filepath = iconv('gb2312', 'utf-8', $fpath);
-        if (is_dir($fpath)) {
-            if ($dh = opendir($fpath)) {
-                while (($file = readdir($dh)) !== false) {
-                    if ($file != '.' && $file != '..') {
-                        $temarr = $this->delAllFile($fpath . '/' . $file);
-                        $files  = array_merge($files, $temarr);
-                    }
-                }
-                closedir($dh);
-            }
-            if ($delfolder) {
-                //过虑删除自己的情况
-                if ($fpath === YPATH) {
-                    if ($delself) {
-                        $files[] = ['path' => $fpath, 'size' => filesize($fpath)];
-                        @rmdir($fpath);
-                    }
-                } else {
-                    $files[] = ['path' => $fpath, 'size' => filesize($fpath)];
-                    @rmdir($fpath);
-                }
-            }
-        } else {
-            if (is_file($fpath)) {
-                $files[] = ['path' => $fpath, 'size' => filesize($fpath)];
-                @unlink($fpath);
-            }
-        }
-
-        return $files;
-    }
-
     public static function getSubscribedEvents()
     {
         return [
-            'init-script'           => 'runInitScript',
+            'init-script'           => 'runAllInitScript',
             //'pre-update-cmd'        => 'cmdPostUpdate',
             // 'post-update-cmd'       => 'clearRunfile',
             // 'post-install-cmd'      => 'clearRunfile',
+            'pre-package-install'   => 'packageInstall',
             // 'post-package-install'  => "packageInstall",
             'post-package-update'   => 'packageUpdate',
             'pre-package-uninstall' => 'packageUninstall',
@@ -90,25 +35,25 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function packageInstall(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'packageInstall');
+            $this->runScript($event, 'install');
         }
     }
 
     public function packageUninstall(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'packageUninstall');
+            $this->runScript($event, 'uninstall');
         }
     }
 
     public function packageUpdate(PackageEvent $event)
     {
         if ($event != null) {
-            $this->runScript($event, 'packageUpdate');
+            $this->runScript($event, 'update');
         }
     }
 
-    public function runInitScript(Event $event)
+    public function runAllInitScript(Event $event)
     {
 
         if ($event != null) {
@@ -135,7 +80,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $this->log('Start RunInitScript...');
             foreach ($dirlist as $key => $value) {
                 $this->log('Running Script: ' . $value);
-                $this->runAction($value, 'initScript');
+                $this->runAction($value, 'install');
             }
         }
     }
@@ -150,8 +95,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (!class_exists('\ank\App') || $isInit > 1) {
             return;
         }
-        //下面这句 InitScript.php使用
-        defined('SCRIPT_ENTRY') or define('SCRIPT_ENTRY', true);
         App::start([
             'appEnv'   => 'script',
             'siteRoot' => dirname($vendorDir) . '/web',
@@ -164,16 +107,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         echo '  - ' . $str . "\n";
     }
 
-    protected function runAction($filePath, $act = 'initScript')
+    protected function runAction($filePath, $action = 'install')
     {
         try {
-            global $action;
-            $action = $act;
             include $filePath;
             $sname = substr($filePath, strripos($filePath, 'vendor/') + 7);
-            // $sname = str_replace('/InitScript.php', '', $sname);
-            // $sname = str_replace('/', '\\', $sname);
-            // $sname = str_replace('-', '', $sname);
             $sname = strtr($sname, [
                 '/InitScript.php' => '',
                 '/'               => '\\',
@@ -182,7 +120,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $sname .= '\\InitScript';
             if (class_exists($sname)) {
                 $obj = new $sname();
-                $obj->run();
+                if (method_exists($obj, $action)) {
+                    $obj->$action();
+                }
+
             }
         } catch (\ank\DbException $e) {
             $this->log($e->getmessage());
