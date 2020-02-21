@@ -62,7 +62,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
             $dirlist   = [];
-            $this->initWeb($vendorDir);
+            if (!$this->initWeb($vendorDir)) {
+                return;
+            }
             if (!class_exists('\utils\admin\InitScript')) {
                 return;
             }
@@ -91,7 +93,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $isInit++;
         global $loader;
         $autopath = $vendorDir . '/autoload.php';
-        $loader   = require $autopath;
+        //首次安装这个文件会不存在
+        if (!file_exists($autopath)) {
+            return false;
+        }
+        $loader = require $autopath;
         if (!class_exists('\ank\App') || $isInit > 1) {
             return;
         }
@@ -99,6 +105,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             'appEnv'   => 'script',
             'siteRoot' => dirname($vendorDir) . '/web',
         ]);
+
+        return true;
 
     }
 
@@ -134,7 +142,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         try {
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
-            $this->initWeb($vendorDir);
+            if (!$this->initWeb($vendorDir)) {
+                return;
+            }
             if (!$type || !in_array($type, ['packageInstall', 'packageUpdate', 'packageUninstall'])) {
                 return;
             }
