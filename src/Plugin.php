@@ -17,7 +17,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $installer = new Installer($io, $composer);
         $composer->getInstallationManager()->addInstaller($installer);
     }
-    
+
     public static function getSubscribedEvents()
     {
         return [
@@ -31,33 +31,33 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             'pre-package-uninstall' => 'packageUninstall',
         ];
     }
-    
+
     public function packageInstall(PackageEvent $event)
     {
         if ($event != null) {
             $this->runScript($event, 'install');
         }
     }
-    
+
     public function packageUninstall(PackageEvent $event)
     {
         if ($event != null) {
             $this->runScript($event, 'uninstall');
         }
     }
-    
+
     public function packageUpdate(PackageEvent $event)
     {
         if ($event != null) {
             $this->runScript($event, 'update');
         }
     }
-    
+
     public function runAllInitScript(Event $event)
     {
-        
+
         if ($event != null) {
-            
+
             $composer  = $event->getComposer();
             $arr       = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
             $vendorDir = $event->getComposer()->getConfig()->get('vendor-dir');
@@ -86,7 +86,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
         }
     }
-    
+
     protected function initWeb($vendorDir)
     {
         static $isInit = 0;
@@ -101,20 +101,19 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (!class_exists('\ank\App') || $isInit > 1) {
             return;
         }
-        App::start([
-                       'appEnv'   => 'console',
-                       'siteRoot' => dirname($vendorDir) . '/web',
-                   ]);
-        
+        App::getInstance([
+            'siteRoot' => dirname($vendorDir) . '/web',
+        ]);
+
         return true;
-        
+
     }
-    
+
     protected function log($str)
     {
         echo '  - ' . $str . "\n";
     }
-    
+
     protected function runAction($filePath, $action = 'install')
     {
         try {
@@ -131,13 +130,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 if (method_exists($obj, $action)) {
                     $obj->$action();
                 }
-                
+
             }
         } catch (\ank\DbException $e) {
             $this->log($e->getmessage());
         }
     }
-    
+
     protected function runScript($event, $type = '')
     {
         try {
@@ -152,7 +151,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $installedPackage = '';
             if ($type == 'update') {
                 $installedPackage = $event->getOperation()->getTargetPackage();
-            } else {
+            }
+            else {
                 $installedPackage = $event->getOperation()->getPackage();
             }
             if (!class_exists('\utils\admin\InitScript')) {
@@ -165,7 +165,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 }
             }
         } catch (\Exception $e) {
-        
+
         }
     }
 }
