@@ -103,7 +103,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
         App::getInstance([
             'siteRoot' => dirname($vendorDir) . '/web',
-        ]);
+        ])->init();
 
         return true;
 
@@ -151,8 +151,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $installedPackage = '';
             if ($type == 'update') {
                 $installedPackage = $event->getOperation()->getTargetPackage();
-            }
-            else {
+            } else {
                 $installedPackage = $event->getOperation()->getPackage();
             }
             if (!class_exists('\utils\admin\InitScript')) {
