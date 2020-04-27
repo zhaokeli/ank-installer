@@ -21,14 +21,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            'init-script'           => 'runAllInitScript',
+            'init-script' => 'runAllInitScript',
             //'pre-update-cmd'        => 'cmdPostUpdate',
             // 'post-update-cmd'       => 'clearRunfile',
             // 'post-install-cmd'      => 'clearRunfile',
-            'pre-package-install'   => 'packageInstall',
+            // 'pre-package-install'   => 'packageInstall',
             // 'post-package-install'  => "packageInstall",
-            'post-package-update'   => 'packageUpdate',
-            'pre-package-uninstall' => 'packageUninstall',
+            // 'post-package-update'   => 'packageUpdate',
+            // 'pre-package-uninstall' => 'packageUninstall',
         ];
     }
 
