@@ -151,7 +151,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $installedPackage = '';
             if ($type == 'update') {
                 $installedPackage = $event->getOperation()->getTargetPackage();
-            } else {
+            }
+            else {
                 $installedPackage = $event->getOperation()->getPackage();
             }
             if (!class_exists('\utils\admin\InitScript')) {
@@ -166,5 +167,31 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         } catch (\Exception $e) {
 
         }
+    }
+
+    /**
+     * composer2
+     * Remove any hooks from Composer
+     * This will be called when a plugin is deactivated before being
+     * uninstalled, but also before it gets upgraded to a new version
+     * so the old one can be deactivated and the new one activated.
+     * @param Composer    $composer
+     * @param IOInterface $io
+     */
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+
+    }
+
+    /**
+     * composer2
+     * Prepare the plugin to be uninstalled
+     * This will be called after deactivate.
+     * @param Composer    $composer
+     * @param IOInterface $io
+     */
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+
     }
 }
