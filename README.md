@@ -1,45 +1,48 @@
-# Composer Installers Extender
+# Composer Installers
 
-The `composer-installers-extender` is a plugin for [Composer](https://getcomposer.org/) that allows
-any package to be installed to a directory other than the default `vendor/` directory within
-the repo on a package-by-package basis. This plugin extends the [`composer/installers`](https://github.com/composer/installers)
-plugin to allow any arbitrary package type to be handled by their custom installer and specified explicitly in the
-`"installer-paths"` mapping in the `"extra"` data property.
+## 使用方法
 
-`composer/installers` has a finite set of supported package types and we recognize the need for
-any arbitrary package type to be installed to a specific directory other than `vendor/`. This plugin
-allows additional package types to be handled by `composer/installers`, benefiting from their explicit install path
-mapping and token replacement of package properties.
+``` sh
+composer require ank/installer
+```
 
-## How to Use
-Add `oomphinc/composer-installers-extender` as a dependency of your project.
-```sh
-composer require oomphinc/composer-installers-extender
-```
-`composer/installers` is a dependency of this plugin and will be automatically required as well.
+## 配置方法
 
-To support additional package types, add an array of these types in the `"extra"` property in your `composer.json`:
+新创建一种纯静态资源包类型 `static`,包配置如下：
+
+```json
+{
+    "name": "ank/admin",
+    "type": "static",
+    "license": "MIT",
+}
 ```
-	"extra": {
-		"installer-types": ["library"]
-	}
-```
-Then, you can add mappings for packages of these types in the same way that you would add package types
-that are supported by [`composer/installers`](https://github.com/composer/installers#custom-install-paths):
-```
-  "extra": {
-    "installer-types": ["library"],
-    "installer-paths": {
-      "special/package/": ["my/package"],
-      "path/to/libraries/{$name}/": ["type:library"]
+
+安装的时候需要安装到当前项目的 `web/public` 目录下面,
+
+在根`composer.json` 中添加上面自定义类型的支持
+
+``` json
+ "extra": {
+      "installer-types": ["static"],
+      "installer-paths": {
+      "special/package/{$name}": ["ank/admin"],
+      "web/public/{$name}/": ["type:static"],
+      "web/vendor/{$name}/":["vendor:my_organization"]
     }
-  }
+ }
 ```
-By default, packages that do not specify a `type` will be considered type `library`. Adding support for this type
-allows any of these packages to be placed in a different install path.
 
-If a type has been added to `"installer-types"`, the plugin will attempt to find an explicit installer path in the mapping.
-If there is no match either by name or by type, the default installer path for all packages will be used instead.
+可使用三种方法来匹配安装包,
+1、直接使用包名字
+2、按类型来匹配
+3、按供应商名字来归类
 
-Please see the README for [`composer/installers`](https://github.com/composer/installers) to see the supported
-syntax for package and type matching as well as the supported replacement tokens in the path (e.g. `{$name}`).
+路径中可以使用的变量 `{$name}` `{$vendor}` `{$type}`
+
+默认情况下如果一个包不指定type则默认为 `library`,安装的时候如果这个类型已经添加到 `"installer-types"`, 插件将会云查询映射的安装路径.如果没有匹配到则使用默认安装路径。
+
+映射路径规则，可以参考
+ [`composer/installers`](https://github.com/composer/installers#custom-install-paths):
+
+其它请查看  [`composer/installers`](https://github.com/composer/installers) 的README 文档 (e.g. `{$name}`).
